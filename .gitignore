@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.slxc
+*.slx.autosave
+slprj/
+MathWorks/
+tmp/
+*.asv
+*.log
+.DS_Store

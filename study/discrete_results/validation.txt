@@ -1,0 +1,5 @@
+PASS: all trajectories finite, actuator <=10N, exact 1e-4s output grid.
+PASS: common PI startup, zero DOB before 5s, RLS frozen after 5s.
+RK4 vs independent mass-matrix ode45 (0.1s) max state error: 2.22044604925e-15
+Nonlinear discrete Jacobian vs exact-ZOH linear model: 1.11022302463e-16
+PASS: x/y geometry sign and standalone discrete plants.

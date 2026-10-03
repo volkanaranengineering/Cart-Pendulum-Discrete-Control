@@ -1,0 +1,8 @@
+2026-10-03, MATLAB R2018b / Simulink, Windows
+Separate repository sources resolved from study/ (not original workspace).
+PASS: cart_pendulum_staged_comparison, 0.02 s smoke run, finite outputs
+PASS: cart_pendulum_discrete_2ms, 0.02 s smoke run, finite outputs
+PASS: cart_pendulum_discrete, 0.02 s smoke run, finite outputs
+PASS: cart_pendulum_discrete_plants, 0.02 s smoke run, finite outputs
+All discrete models: FixedStepDiscrete, fixed step 1e-4 s, 201 samples.
+This relocation smoke test does not replace the archived 20 s full study.

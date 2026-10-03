@@ -1,0 +1,50 @@
+path,bytes,role,snapshot_date
+study/discrete_results/angle_comparison.fig,4229803,editable MATLAB figure,2026-10-03
+study/discrete_results/angle_comparison.png,334692,figure/preview,2026-10-03
+study/discrete_results/animation_preview.png,81011,figure/preview,2026-10-03
+study/discrete_results/COMPARISON.md,1912,study interpretation,2026-10-03
+study/discrete_results/controllers_2d.mp4,2659633,six-controller animation,2026-10-03
+study/discrete_results/differences.csv,622,same-rate and fast-rate comparison,2026-10-03
+study/discrete_results/discrete_01ms_ESO_baseline.csv,70157194,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_ESO_kick.csv,69728863,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_Fixed_inverse_baseline.csv,63593153,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_Fixed_inverse_kick.csv,63440838,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_LQR_baseline.csv,63215475,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_LQR_kick.csv,63204568,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_P_only_baseline.csv,59996316,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_P_only_kick.csv,59323731,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_PI_baseline.csv,59947617,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_PI_kick.csv,59264329,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_RLS_DOB_baseline.csv,71373734,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_01ms_RLS_DOB_kick.csv,71043450,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_ESO_baseline.csv,69083569,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_ESO_kick.csv,68857250,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_Fixed_inverse_baseline.csv,62890721,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_Fixed_inverse_kick.csv,62876247,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_LQR_baseline.csv,63099743,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_LQR_kick.csv,63094284,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_P_only_baseline.csv,58967848,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_P_only_kick.csv,58502551,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_PI_baseline.csv,58795019,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_PI_kick.csv,58425482,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_RLS_DOB_baseline.csv,70139461,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_2ms_RLS_DOB_kick.csv,69948228,full-resolution trajectory,2026-10-03
+study/discrete_results/discrete_response.fig,5040756,editable MATLAB figure,2026-10-03
+study/discrete_results/discrete_response.png,188705,figure/preview,2026-10-03
+study/discrete_results/position_comparison.fig,4168939,editable MATLAB figure,2026-10-03
+study/discrete_results/position_comparison.png,228790,figure/preview,2026-10-03
+study/discrete_results/previous_ESO_baseline.csv,69080664,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_ESO_kick.csv,68855084,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_Fixed_inverse_baseline.csv,62892908,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_Fixed_inverse_kick.csv,62873314,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_LQR_baseline.csv,63100422,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_LQR_kick.csv,63095515,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_P_only_baseline.csv,58964657,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_P_only_kick.csv,58497915,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_PI_baseline.csv,58789723,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_PI_kick.csv,58426387,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_RLS_DOB_baseline.csv,70441921,full-resolution trajectory,2026-10-03
+study/discrete_results/previous_RLS_DOB_kick.csv,70248614,full-resolution trajectory,2026-10-03
+study/discrete_results/results.mat,337593420,complete MATLAB results struct,2026-10-03
+study/discrete_results/summary.csv,2789,18-row controller metric table,2026-10-03
+study/discrete_results/validation.txt,346,MATLAB validation record,2026-10-03
