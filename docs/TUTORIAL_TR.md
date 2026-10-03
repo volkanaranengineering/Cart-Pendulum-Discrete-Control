@@ -3,11 +3,11 @@
 
 **Ders notu ve uygulama rehberi | 3 Ekim 2026**
 
-Bu çalışma, aynı araba-sarkaç sisteminin önceki denetleyicilerle nasıl davrandığını ve bitki modeli ile denetleyiciler ayrık zamana taşındığında nelerin değiştiğini inceler. Amaç yalnızca Simulink çözücü ayarını değiştirmek değildir: bitkinin durum güncellemesi, denetleyicinin örnekleme süresi, gözleyici katsayıları ve ölçümden kuvvete giden zamanlama birlikte ele alınır.
+Bu çalışma, aynı araba-sarkaç sisteminin önceki denetleyicilerle nasıl davrandığını ve kontrol edilen sistemin modeli ile denetleyiciler ayrık zamana taşındığında nelerin değiştiğini inceler. Burada İngilizce “plant” terimi için **kontrol edilen sistem** ifadesi kullanılır. Modelin durum güncellemesi, denetleyicinin örnekleme süresi, gözleyici katsayıları ve ölçümden kuvvetin uygulanmasına kadar geçen süre birlikte ele alınır.
 
-Ana sonuç modeli, 0,0001 s sabit adımlı ayrık çözücü kullanır. Bu süre 0,1 ms, örnekleme frekansı ise 10 kHz demektir. Bu sayısal örnekleme hızıdır; kodun fiziksel bir işlemcide her 100 mikrosaniyede çalışabildiği ölçülmemiştir.
+Ana karşılaştırma modeli, 0,0001 s sabit adımlı ayrık çözücü kullanır. Bu süre 0,1 ms, örnekleme frekansı ise 10 kHz demektir. Bu sayısal örnekleme hızıdır; kodun fiziksel bir işlemcide her 100 mikrosaniyede çalışabildiği ölçülmemiştir.
 
-**Öğrenme hedefleri:** Durum değişkenlerinden mekanik denklemleri kurmak; ayrık bitki ile ayrık çözücüyü ayırt etmek; önceki PI, LQR ve gözleyici tabanlı denetleyicileri anlamak; bozucu etkisini başlangıç hareketinden ayırmak; MATLAB x/y koordinatlarıyla animasyon üretmek; sonuçları yeniden çalıştırıp doğrulamak.
+**Öğrenme hedefleri:** Durum değişkenlerinden mekanik denklemleri kurmak; sistemin ayrık zamanlı modeli ile ayrık çözücü arasındaki farkı açıklamak; önceki PI, LQR ve gözleyici tabanlı denetleyicileri anlamak; bozucu etkisini başlangıç hareketinden ayırmak; MATLAB x/y koordinatlarıyla animasyon üretmek; sonuçları yeniden çalıştırıp doğrulamak.
 
 ![Denetleyici sonuçlarının temsilî animasyon görünümü](../study/discrete_results/animation_preview.png)
 
@@ -35,7 +35,7 @@ Burada x arabanın konumu, v hızı, theta dik yukarı konumdan ölçülen sarka
 | I | 0,006 kg m² | Sarkacın kütle merkezi etrafındaki atalet momenti |
 | g | 9,8 m/s² | Yerçekimi ivmesi |
 
-Denetleyici u kuvvetini üretir; dış bozucu d ayrıca eklenir. Bitkinin gördüğü toplam kuvvet F=u+d'dir. Denetleyici kuvveti -10 ile +10 N arasında sınırlandırılır. Bozucu bu sınırlandırmadan sonra eklendiğinden toplam bitki kuvveti aynı sınırla zorunlu olarak sınırlı değildir.
+Denetleyici u kuvvetini üretir; dış bozucu d ayrıca eklenir. Kontrol edilen sisteme uygulanan toplam kuvvet F=u+d'dir. Denetleyici kuvveti -10 ile +10 N arasında sınırlandırılır. Bozucu bu sınırlandırmadan sonra eklendiğinden toplam kuvvet ±10 N aralığını aşabilir.
 
 Kısaltmalar J=I+m*l²=0,024 kg m² ve h=m*l=0,06 kg m olarak tanımlansın. Hareket denklemleri şu iki bağlı denklemle yazılır:
 
@@ -56,15 +56,15 @@ Bu ifadeler `discrete_cart_plant.m` içindedir. Doğrulama kodu aynı ivmeleri b
 
 ---
 
-## 2. Ayrık çözücü ve ayrık bitki aynı şey değildir
+## 2. Ayrık zamanlı sistem modeli ve çözücü
 
-Sürekli bir modelde integratörler dz/dt=f(z,F) denklemini çözer. Simulink bir sürekli çözücüyle ara zamanları değerlendirir. Ayrık modelde ise durumlar yalnızca belirli anlarda güncellenir:
+Sürekli zamanlı modelde integratörler dz/dt=f(z,F) denkleminin çözümünü temsil eder. Simulink'in sürekli zaman çözücüsü, durum türevlerini ara zamanlarda da değerlendirir. Ayrık zamanlı modelde ise durumlar yalnızca belirli anlarda güncellenir:
 
 ```text
 z[k+1] = Phi(z[k], F[k], Ts)
 ```
 
-Bu çalışmanın yeni bitkisi dört ayrık durum, sıfır sürekli durum içerir. Simulink çözücüsü `FixedStepDiscrete`, sabit adımı 1e-4 s'dir. Bitkinin içindeki Phi fonksiyonu klasik dördüncü mertebe Runge-Kutta geçişidir. Adım boyunca kuvvet sabit kabul edilir; ara durumlarda türev hesapları yapılır:
+Kontrol edilen sistemin yeni modeli dört ayrık durum içerir; sürekli durumu yoktur. Simulink çözücüsü `FixedStepDiscrete`, sabit adımı 1e-4 s'dir. Modeldeki Phi durum geçişi, klasik dördüncü mertebe Runge-Kutta yöntemiyle hesaplanır. Adım boyunca kuvvet sabit kabul edilir; ara durumlarda türev hesapları yapılır:
 
 ```text
 k1 = f(z[k], F[k])
@@ -74,13 +74,13 @@ k4 = f(z[k] + Ts*k3,   F[k])
 z[k+1] = z[k] + Ts*(k1 + 2*k2 + 2*k3 + k4)/6
 ```
 
-Buradaki RK4, Simulink'e seçilmiş bir sürekli çözücü değildir. Ayrık S-function'ın durum güncellemesi içinde yapılan hesaplamadır. Denetleyici RK4'ün ara durumlarında yeniden çağrılmaz; adım boyunca aynı kuvvet kullanılır.
+Buradaki RK4 hesabı, ayrık S-function bloğunun durum güncellemesi içinde yapılır. Simulink'te seçilen çözücü `FixedStepDiscrete` olarak kalır. Denetleyici RK4'ün ara durumlarında yeniden çağrılmaz; adım boyunca aynı kuvvet kullanılır.
 
-`discrete_cart_plant` fonksiyonunda flag=0 boyutları, başlangıç durumunu ve örnekleme süresini tanımlar. flag=2 bir sonraki durumu hesaplar; flag=3 mevcut durumu çıkışa verir. Çıkışta doğrudan giriş geçişi olmadığı için bitki çıkışı o andaki kuvvetten anlık olarak türemez.
+`discrete_cart_plant` fonksiyonunda flag=0 boyutları, başlangıç durumunu ve örnekleme süresini tanımlar. flag=2 bir sonraki durumu hesaplar; flag=3 mevcut durumu çıkışa verir. Blok çıkışı yalnızca mevcut duruma bağlıdır; o andaki kuvvete doğrudan bağlı değildir. Simulink'te bu özellik, doğrudan geçişin bulunmaması (direct feedthrough=0) olarak tanımlanır.
 
-Birinci ara karşılaştırmada bitki 0,1 ms, denetleyici 2 ms örneklemelidir: her denetleyici aralığında 20 bitki adımı bulunur. Son modelde her ikisi 0,1 ms'dir. Bu ayrım, bitki ayrıklaştırmasının etkisini denetleyici hızının etkisinden ayırmaya yardımcı olur.
+Ara karşılaştırmada sistem modeli 0,1 ms, denetleyici 2 ms aralıklarla güncellenir: her denetleyici örnekleme periyodunda sistem modeli 20 adım ilerler. Son modelde her iki süre de 0,1 ms'dir. Bu ayrım, sistem modelinin ayrıklaştırılmasından kaynaklanan etkiyi denetleyici örnekleme süresinin etkisinden ayırmaya yardımcı olur.
 
-**Kontrol edin:** `cart_pendulum_discrete.slx` modelini açın. Solver bölümünde `FixedStepDiscrete` ve `0.0001` değerlerini görün. Plant bloklarının S-function parametrelerinde Ts, controller bloklarında Tc kullanıldığını inceleyin.
+**Kontrol edin:** `cart_pendulum_discrete.slx` modelini açın. Solver bölümünde `FixedStepDiscrete` ve `0.0001` değerlerini görün. `Plant_` önekli sistem bloklarında Ts, `Control_` önekli denetleyici bloklarında Tc kullanıldığını inceleyin. Bu İngilizce adlar, Simulink modelindeki blokları bulmayı kolaylaştırmak için korunmuştur.
 
 ---
 
@@ -106,7 +106,7 @@ z[k+1] = Az*z[k] + Bz*F[k]
 
 Bu işlem doğrusal modelin sıfırıncı dereceden tutucu altında tam ayrıklaştırmasıdır. Doğrusal olmayan model için kullanılan RK4 ise sayısal bir yaklaşımdır. `cart_pendulum_discrete_plants.slx` iki modeli aynı kuvvet altında yan yana içerir. Büyük açı hareketlerinde doğrusal modelden fiziksel doğruluk beklenmemelidir.
 
-Önceki LQR tasarımında Q=diag(10,1,100,1), R=0,1 kullanılır. Sürekli zaman maliyeti, durum sapmaları ve kuvvetin ağırlıklı karesini bütünler. Riccati çözümü P ile K=R^(-1)*B'*P hesaplanır. Kod, Control System Toolbox gerektirmemek için Hamilton matrisinin kararlı özuzayını kullanır ve Riccati denklemindeki artığı denetler.
+Önceki doğrusal karesel regülatör (LQR) tasarımında Q=diag(10,1,100,1), R=0,1 kullanılır. Sürekli zaman maliyet fonksiyonu, durum sapmaları ile kontrol kuvvetinin ağırlıklı karelerinin zaman integralidir. Riccati çözümü P ile K=R^(-1)*B'*P hesaplanır. Kod, Control System Toolbox gerektirmemek için Hamiltonyen matrisin kararlı özuzayını kullanır ve Riccati denkleminin sayısal artık hatasını denetler.
 
 Uygulanan komut u_raw=-K*z, çıkış ise sat(u_raw)'dır. Bu çalışmada K yeniden ayrık LQR için tasarlanmamıştır. Önceki sürekli tasarım kazancı örneklemeli olarak uygulanır. Bu nedenle sonuçlara “yeni ayrık optimal LQR tasarımı” adı verilmemelidir.
 
@@ -125,9 +125,9 @@ integral[k+1] = integral[k]
                   + Tc*(-theta[k] + u_new - raw[k])
 ```
 
-Burada integral kazancı 1, geri hesaplama anti-windup kazancı 1'dir. Doyum yoksa u_new-raw sıfırdır. Doyum varsa integral durumunun aşırı büyümesini azaltan düzeltme devreye girer.
+Burada integral kazancı 1'dir. İntegral yığılmasını önlemek için geri hesaplama yöntemi (back-calculation anti-windup) kullanılır; düzeltme kazancı da 1'dir. Doyum yoksa u_new-raw sıfırdır. Doyum varsa integral durumunun aşırı büyümesini azaltan düzeltme devreye girer.
 
-S-function mevcut ayrık durumunda saklı kuvveti çıkışa verir, yeni kuvveti update aşamasında hesaplar. Dolayısıyla z[k] kullanılarak bulunan kuvvet bir sonraki örnekte uygulanır. Her iki sürümde de bir örnek gecikmesi vardır; fakat fiziksel gecikme önceki modelde 2 ms, yeni modelde 0,1 ms'dir. Daha hızlı örnekleme sonucunun önemli bir parçası budur.
+S-function, mevcut ayrık durumunda saklı kuvveti çıkışa verir; yeni kuvveti durum güncelleme aşamasında hesaplar. Dolayısıyla z[k] kullanılarak bulunan kuvvet bir sonraki örnekleme anında uygulanır. Her iki sürümde de bir örnekleme periyodu kadar gecikme vardır; bu gecikme önceki modelde 2 ms, yeni modelde 0,1 ms'dir. Daha hızlı örneklemenin sonuçlara etkisi değerlendirilirken bu değişim de dikkate alınmalıdır.
 
 | Dal | 5 saniyeden sonra kullanılan yapı |
 |---|---|
@@ -156,9 +156,9 @@ phi = [xddot; -cos(theta)*thetaddot + sin(theta)*omega²; v]
 F = phi' * p,   p = [a; h; b]
 ```
 
-İdeal katsayılar [0,7; 0,06; 0,1]'dir. Başlangıç kestirimi bilerek yanlı [0,84; 0,048; 0,12]'dir. Hız farklarından ivme hesaplanır, orta nokta durumları kullanılır ve hem regresör hem önceki uygulanan kuvvet 0,02 s zaman sabitli alçak geçiren filtreden geçirilir.
+İdeal katsayılar [0,7; 0,06; 0,1]'dir. Başlangıç kestirimi, gerçek değerlerden farklı olacak şekilde [0,84; 0,048; 0,12] seçilmiştir. Hız farklarından ivme hesaplanır, orta nokta durumları kullanılır ve hem regresyon vektörü hem önceki uygulanan kuvvet 0,02 s zaman sabitli alçak geçiren filtreden geçirilir.
 
-RLS, filtrelenmiş kuvvet ile model kuvveti arasındaki yeniliği kullanır. P_cov aşağıdaki ifadelerde kestirim kovaryansını belirtir; LQR Riccati matrisinden farklıdır:
+Özyinelemeli en küçük kareler (RLS) yöntemi, filtrelenmiş kuvvet ile modelin öngördüğü kuvvet arasındaki kestirim hatasını (innovation) kullanır. P_cov aşağıdaki ifadelerde parametre kestirimine ait kovaryans matrisini belirtir; LQR tasarımındaki Riccati matrisinden farklıdır:
 
 ```text
 innovation = u_filtered - phi_filtered' * p
@@ -169,7 +169,7 @@ P_cov_next = (P_cov - L*phi_filtered'*P_cov) / lambda
 
 Önceki 2 ms denetleyicide lambda=0,9995'tir. Yeni sürümde lambda=0,9995^(Tc/0,002) seçilir. Böylece eski bilginin saniye başına üstel sönümü korunur. Bununla birlikte saniyedeki ölçüm sayısı arttığından bilgi birikimi ve uyarlama yolu tamamen aynı kalmaz.
 
-Öğrenme yalnızca t<5 s boyunca, dış bozucunun sıfır olduğu başlangıç geçişinde yapılır. 5 s'de katsayılar dondurulur. 8 s'deki bozucu geldiğinde öğrenmenin devam etmemesi, bozucunun nominal modele karışmasını önler. Düzeltme, ters model kuvvetinden filtrelenmiş denetleyici kuvvetinin çıkarılması ve 0,05 s zaman sabitli süzülmesiyle elde edilir.
+Öğrenme yalnızca t<5 s boyunca, dış bozucunun sıfır olduğu başlangıç geçici rejiminde yapılır. 5 s'de katsayı güncellemesi durdurulur; kestirilen değerler sabit tutulur. Böylece 8 s'deki bozucu geldiğinde model parametreleri bozucu etkisini de temsil edecek şekilde değişmez. Düzeltme, ters model kuvvetinden filtrelenmiş denetleyici kuvvetinin çıkarılması ve bu farkın 0,05 s zaman sabitli filtreden geçirilmesiyle elde edilir. Bu yapı ters model tabanlı bozucu gözleyicisi (DOB) olarak kullanılır.
 
 Sabit ters model dalında aynı yapı kullanılır ancak katsayılar öğrenilmez. Bu dal öğrenmenin etkisine ilişkin bir karşılaştırma sağlar. Önceki çalışmanın notları, kısa başlangıç geçişinin sürtünmeyi doğru tanımlamaya yetmediğini belirtir. Küçük regresyon artığı tek başına katsayıların fiziksel olarak doğru olduğunu kanıtlamaz. Yeterli uyarım ve parametre ayırt edilebilirliği ayrıca değerlendirilmelidir.
 
@@ -177,7 +177,7 @@ Sabit ters model dalında aynı yapı kullanılır ancak katsayılar öğrenilme
 
 ## 6. ESO: ne kestirilir, ne kestirilmez?
 
-ESO dalı açı ölçümünü kullanır. Tasarım normalizasyonu b0=1, gözleyici bant genişliği wo=20'dir. Sürekli gözleyici matrisleri, durum sırası [theta_hat; omega_hat; f_hat] ve giriş sırası [theta; u_previous] için:
+Genişletilmiş durum gözleyicisi (ESO) dalı açı ölçümünü kullanır. Tasarım normalizasyonu b0=1, gözleyici bant genişliği wo=20 rad/s'dir. Sürekli zamanlı gözleyici matrisleri, durum sırası [theta_hat; omega_hat; f_hat] ve giriş sırası [theta; u_previous] için:
 
 ```text
 Ao = [-3*wo,     1, 0;
@@ -190,9 +190,9 @@ Bo = [3*wo,      0;
 
 Ao ve Bo, ilgili denetleyici örnekleme süresinde matris üsteliyle ayrıklaştırılır. Böylece 2 ms için hesaplanmış katsayılar yanlışlıkla 0,1 ms güncellemede kullanılmaz. Ana kodda observer(Tc) işlevi bunu yapar.
 
-5 s'deki geçişte gözleyici [ölçülen açı; 0; 0] ile başlatılır. Sonraki örneklerde önceki kuvvet ile mevcut açıdan güncellenir. Son durum f_hat sınırlandırılarak P denetim komutundan çıkarılır.
+5 s'deki denetleyici değişiminde gözleyici [ölçülen açı; 0; 0] ile başlatılır. Sonraki örneklerde önceki kuvvet ve mevcut açı kullanılarak güncellenir. Üçüncü gözleyici durumu f_hat sınırlandırılarak P denetim komutundan çıkarılır.
 
-**Yorum sınırı:** f_hat fiziksel dış kuvvetin doğrudan ölçümü değildir. Tasarımın ikinci mertebe giriş-çıkış normalizasyonu altında toplu ivme/dinamik terimidir. b0=1 gerçek bitkinin doğrulanmış giriş kazancı olarak alınmamıştır. Kodda sayısal olarak kuvvet komutundan çıkarılması, birim ve model eşdeğerliğinin deneysel olarak kanıtlandığı anlamına gelmez. Bu dal önceki denetleyicinin davranışını koruyan bir karşılaştırmadır.
+**Yorum sınırı:** f_hat fiziksel dış kuvvetin doğrudan ölçümü değildir. İkinci mertebe gözleyici modelinde, modellenmeyen dinamikler ile bozucu etkisini birlikte temsil eden bir ivme terimidir. b0=1, kontrol edilen sistemin doğrulanmış giriş kazancı olarak alınmamıştır. Bu değerin sayısal olarak kuvvet komutundan çıkarılması, kuvvet ile ivme arasındaki fiziksel dönüşümün doğrulandığı anlamına gelmez. Bu dal önceki denetleyicinin davranışını koruyan bir karşılaştırmadır.
 
 Açı grafiğinin düzelmesi, fiziksel bozucunun doğru kestirildiğini tek başına göstermez. Bu iddia için bilinen bozucu sinyaliyle kestirimin işaret, ölçek, gecikme ve frekans davranışı ayrıca karşılaştırılmalıdır. Bu arşivde böyle kapsamlı bir bozucu-kestirim doğruluk iddiası yapılmaz.
 
@@ -202,15 +202,15 @@ Açı grafiğinin düzelmesi, fiziksel bozucunun doğru kestirildiğini tek baş
 
 Üç sürümün her biri iki kez çalıştırılır: dış bozucu olmadan ve 8–8,1 s arasında +1 N bozucuyla. Altı denetleyici her modelin paralel dallarıdır. Toplam altı Simulink koşusu ve 36 denetleyici yörüngesi vardır.
 
-| Sürüm | Bitki | Denetleyici süresi |
+| Sürüm | Kontrol edilen sistemin modeli | Denetleyici örnekleme süresi |
 |---|---|---|
 | previous | Önceki sürekli doğrusal olmayan model | 2 ms |
-| discrete_2ms | Ayrık RK4, 0,1 ms bitki adımı | 2 ms |
-| discrete_01ms | Ayrık RK4, 0,1 ms bitki adımı | 0,1 ms |
+| discrete_2ms | Ayrık RK4, 0,1 ms model adımı | 2 ms |
+| discrete_01ms | Ayrık RK4, 0,1 ms model adımı | 0,1 ms |
 
 Başlangıç z0=[0;0;5*pi/180;0]'dır. Kayıt 20 s sürer. 0–5 s ortak PI, 5 s'de kontrol geçişi ve RLS dondurma, 8 s'de bozucu başlangıcı, 8,1 s'de bozucu bitişi kullanılır. Bozucu büyüklüğü ve zamanları tüm dallarda aynıdır.
 
-Sürekli model, ode45 ile RelTol=1e-8, AbsTol=1e-10 ve en büyük adım 0,001 s kullanır. Ortak karşılaştırma ızgarası 0,0001 s'dir. Sürekli durumlar bu ızgaraya doğrusal, tutulan denetleyici çıkışları önceki-değer yöntemiyle taşınır. Bu yüzden aynı hızdaki iki sürüm arasındaki kayıt farkı yalnızca bitki entegrasyon hatası değildir; çıktı yeniden örnekleme etkisi de bulunur.
+Sürekli model, ode45 ile RelTol=1e-8, AbsTol=1e-10 ve en büyük adım 0,001 s kullanır. Sonuçlar, 0,0001 s aralıklı ortak zaman noktalarında karşılaştırılır. Sürekli durumlar doğrusal enterpolasyonla, örnekler arasında sabit tutulan denetleyici çıkışları ise son örnek değeri korunarak bu zaman noktalarına aktarılır. Bu yüzden aynı örnekleme süresindeki iki sürüm arasındaki kayıt farkı, sistem modelinin sayısal integrasyon hatasının yanında yeniden örnekleme etkisini de içerir.
 
 Bozucunun ilave etkisi eşlenmiş farkla bulunur:
 
@@ -218,7 +218,7 @@ Bozucunun ilave etkisi eşlenmiş farkla bulunur:
 delta_z(t) = z_kick(t) - z_baseline(t)
 ```
 
-Bu fark, aynı denetleyicinin bozucusuz başlangıç/switching hareketini ayırır. Doğrusal olmayan sistemde bu çıkarma bir süperpozisyon teoremi değildir; iki eşlenmiş deney arasındaki gözlenen farktır.
+Bu fark, bozucunun ek etkisini aynı denetleyicinin başlangıç koşullarından ve denetleyici değişiminden kaynaklanan hareketinden ayırır. Doğrusal olmayan sistemde bu işlem süperpozisyon ilkesine dayanmaz; aynı koşullarda yapılan iki deney arasındaki gözlenen farkı verir.
 
 Mutlak tepe açı 8–20 s aralığında |theta| maksimumudur. Bozucuya bağlı tepe ise |delta_theta| maksimumudur. Yerleşme ölçümü 8,1 s'den itibaren 1 derece ve 1 cm bantlarını kullanır. Sinyal kaydın sonuna kadar bantta kalmalı ve en az bir saniyelik son gözlem aralığı bulunmalıdır. NaN yerleşmenin gösterilemediğini belirtir; sıfır ise bozucu bittikten sonra bant dışına hiç çıkılmadığını gösterir.
 
@@ -239,7 +239,7 @@ Mutlak tepe açı 8–20 s aralığında |theta| maksimumudur. Bozucuya bağlı 
 
 Tablodaki açı tepeleri 8 s sonrasındaki **mutlak** açıdır. LQR bu senaryoda hem açı hem konum düzenlemesi sağlar. PI'nin tepe açısı azalmasına rağmen son konum yaklaşık -1,02 m'dir. ESO'nun son açısı çok küçükken son konumu yaklaşık -0,95 m'dir. Dolayısıyla yalnızca “açı küçük” ölçütü kontrol amacını eksik temsil edebilir.
 
-Önceki 2 ms denetleyiciler korunup yalnızca bitki ayrıklaştırıldığında, bütün dallar içindeki en büyük kayıt farkı yaklaşık 0,000140 m ve 0,01284 derecedir. Denetleyici 0,1 ms'ye taşındığında görülen daha büyük değişimler, örnek gecikmesinin kısalmasını ve uyarlama örneklemesinin değişmesini de içerir.
+Önceki 2 ms denetleyiciler korunup yalnızca kontrol edilen sistemin modeli ayrıklaştırıldığında, bütün dallar içindeki en büyük kayıt farkı yaklaşık 0,000140 m ve 0,01284 derecedir. Denetleyicinin örnekleme süresi 0,1 ms'ye indirildiğinde görülen daha büyük değişimler, uygulama gecikmesinin kısalmasını ve parametre güncelleme sıklığının değişmesini de içerir.
 
 Sayısal sıralama bu tek başlangıç ve bozucu senaryosuna aittir. Kazançlar yeniden ayarlanmamıştır. Bu tablo, her bozucu altında veya parametre belirsizliğinde aynı sıralamanın korunacağını göstermez.
 
@@ -270,7 +270,7 @@ bob_x  = x - l*sin(theta)
 bob_y  = l*cos(theta)
 ```
 
-`cart_pendulum_xy(z,l)` fonksiyonu N satırlı durum matrisinden N-by-4 koordinat matrisi döndürür. theta=0 için kütle merkezi arabanın 0,3 m üstündedir. theta=pi/2 için arabanın 0,3 m solundadır. Bu iki durum işaret kontrolü için kullanılır.
+`cart_pendulum_xy(z,l)` fonksiyonu N satırlı durum matrisinden N satır ve 4 sütun içeren bir koordinat matrisi döndürür. theta=0 için kütle merkezi arabanın 0,3 m üstündedir. theta=pi/2 için arabanın 0,3 m solundadır. Bu iki durum işaret kontrolü için kullanılır.
 
 Animasyonda dikdörtgen araba gövdesini, çizgi dönme noktasından kütle merkezine olan bağlantıyı, turuncu işaret sarkaç kütle merkezini temsil eder. Çizgi uzunluğu fiziksel sarkacın uçtan uca uzunluğu iddiası değildir; modeldeki l uzaklığıdır.
 
@@ -301,7 +301,7 @@ Bu komut önce modelleri kurar, sonra senaryoları çalıştırır; çıktılar�
 
 Doğrulamanın birinci katmanı koşu kontrolleridir: bütün değerler sonlu olmalı; u kuvveti ±10 N sınırını aşmamalı; ayrık kayıt 0,0001 s ızgarasına uymalı; ilk beş saniyede altı dal aynı olmalı; DOB başlangıçta sıfır olmalı; RLS 5 s sonrasında güncellenmemelidir.
 
-İkinci katman bitki denklemleridir. RK4 bitki, 0,1 saniyelik sabit kuvvet testinde bağımsız kütle matrisi ODE çözümüyle yaklaşık 2,22e-15 en büyük durum farkı vermiştir. Doğrusal olmayan ayrık geçişin yerel sayısal Jacobian'ı ile tam ZOH doğrusal model farkı yaklaşık 1,11e-16'dır. Bunlar bu test noktalarının sonuçlarıdır; bütün hareket aralığı için evrensel hata sınırı değildir.
+İkinci katman, kontrol edilen sistemin hareket denklemlerinin doğrulanmasıdır. RK4 ile güncellenen model, 0,1 saniyelik sabit kuvvet testinde kütle matrisi biçiminde ayrıca kurulan adi diferansiyel denklemlerin çözümüyle karşılaştırılmıştır. En büyük durum farkı yaklaşık 2,22e-15'tir. Doğrusal olmayan ayrık geçişin yerel sayısal Jacobi matrisi ile sıfırıncı dereceden tutucu (ZOH) kullanılarak tam ayrıklaştırılmış doğrusal model arasındaki fark yaklaşık 1,11e-16'dır. Bu değerler yalnızca kullanılan test noktaları için geçerlidir; bütün hareket aralığı için bir hata sınırı oluşturmaz.
 
 Üçüncü katman arşiv bütünlüğüdür. Depo kökünde `python tools/verify_archive.py`, SHA-256 karmalarını kontrol eder ve CSV'lerden tam ayrık denetleyicilerin metriklerini yeniden hesaplar. Bu kontrol MATLAB çalıştırmaz; kaydın tutarlılığını inceler. `manifest.json` dosya boyutlarını ve karmalarını, `docs/DATA_CATALOG.csv` veri dosyalarının rollerini listeler.
 

@@ -35,8 +35,8 @@
     },
     {
       "path": "docs/README_TR.md",
-      "bytes": 1932,
-      "sha256": "66d3cc651258a246c93595f9a9baa512b4ce277270f8e289df6b5113237cbc2f"
+      "bytes": 2343,
+      "sha256": "1b6a28524de28acc88a998e5177c89d70e06e69949b875b4725dbb05a992e03e"
     },
     {
       "path": "docs/RELOCATION_VALIDATION.txt",
@@ -55,13 +55,13 @@
     },
     {
       "path": "docs/TUTORIAL_TR.md",
-      "bytes": 21642,
-      "sha256": "e6e562816f386f695c1bfe40ce699022ee3275b259356031a2c97df951e0e181"
+      "bytes": 23315,
+      "sha256": "57133a3bdd9a543f4866a422cc0173b7607d4a08d643e668223db7f92cd26c17"
     },
     {
       "path": "output/pdf/Ayrik_Araba_Sarkac_Ders_Notu_TR.pdf",
-      "bytes": 924615,
-      "sha256": "4680c4165518a0f4f42ea67e11e339094d89d3565ea78910da311e11be0d0865"
+      "bytes": 925611,
+      "sha256": "c5bc8786aaffe5ca536443b4bf75c969d1b4cca1b40f1028504ac192f35ba821"
     },
     {
       "path": "requirements-docs.txt",

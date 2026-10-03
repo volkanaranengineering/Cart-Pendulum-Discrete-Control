@@ -33,3 +33,7 @@ python tools/verify_archive.py
 - `output/pdf/`: resimli Türkçe ders notu.
 
 Bu deneyde LQR hem sarkaç açısını hem araba konumunu düzenler. Diğer yöntemlerde açının küçük olması, arabanın başlangıç konumuna dönmesi anlamına gelmez. Donanım deneyi, sensör gürültüsü ve fiziksel ray sınırı bu çalışmanın kapsamında değildir.
+
+## Terim kullanımı
+
+Ders notunda `plant` için **kontrol edilen sistem**, `controller` için **denetleyici**, `observer` için **gözleyici**, `disturbance` için **bozucu** kullanılır. `State update`, **durum güncellemesi**; `sampling period`, **örnekleme süresi** olarak açıklanır. Kod, blok ve veri dosyalarının özgün İngilizce adları, uygulamada kolayca bulunabilmeleri için korunmuştur.
